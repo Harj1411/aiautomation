@@ -21,8 +21,15 @@ const server = http.createServer(app);
 initSocket(server, env.clientUrl);
 
 // Middlewares
-app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: env.clientUrl || '*', credentials: true }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, etc.) or matching clientUrl
+      callback(null, true);
+    },
+    credentials: true
+  })
+);
 app.use(compression());
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
